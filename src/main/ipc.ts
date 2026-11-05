@@ -223,11 +223,6 @@ export function registerIpc(): void {
   ipcMain.handle(IPC.exportsReveal, (_event, file: string) => {
     shell.showItemInFolder(file)
   })
-  ipcMain.handle(IPC.libraryOpenResult, async (_event, file: string) => {
-    const result = await shell.openPath(file)
-    if (result) throw new Error(result)
-  })
-
   ipcMain.handle(IPC.screenshotsCapture, (_event, request: ScreenshotRequest) => captureScreenshot(request))
   ipcMain.handle(IPC.libraryOpenResult, async (_event, file: string) => {
     const error = await shell.openPath(file)

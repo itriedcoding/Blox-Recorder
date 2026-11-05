@@ -39,6 +39,7 @@ fs.mkdirSync(videos, { recursive: true })
 process.env.SKYREC_LAUNCH_LOG = path.join(userData, 'launch.log')
 
 const handlers = new Map()
+const duplicateHandlers = []
 const windows = []
 const schemeRegistrations = []
 const protocolHandlers = new Map()
@@ -144,7 +145,16 @@ const electron = {
     }
   ),
   ipcMain: {
-    handle: (channel, handler) => handlers.set(channel, handler),
+    // Electron throws on a duplicate handler and that throw used to kill the
+    // whole bootstrap (the app then quit before showing a window). The mock has
+    // to be just as strict, or the smoke test hides the very bug it exists for.
+    handle: (channel, handler) => {
+      if (handlers.has(channel)) {
+        duplicateHandlers.push(channel)
+        throw new Error(`Attempted to register a second handler for '${channel}'`)
+      }
+      handlers.set(channel, handler)
+    },
     handleOnce: (channel, handler) => handlers.set(channel, handler),
     on: (channel) => handlers.set(channel, () => undefined),
     once: (channel) => handlers.set(channel, () => undefined),
@@ -326,6 +336,7 @@ const expectedChannels = [
 ]
 const missingHandlers = expectedChannels.filter((channel) => !handlers.has(channel))
 check('every expected IPC channel is registered', missingHandlers.length === 0, missingHandlers.join(', '))
+check('no IPC channel is registered twice', duplicateHandlers.length === 0, duplicateHandlers.join(', '))
 
 check('recordings directory created', fs.existsSync(path.join(videos, 'SkyRec')))
 check('preload bundle exists next to main', fs.existsSync(preloadBundle))
