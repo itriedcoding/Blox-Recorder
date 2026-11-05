@@ -24,7 +24,9 @@
     "icons": "node scripts/generate-icons.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
-    "verify:render": "vitest run tests/export-pipeline.test.ts"
+    "smoke": "node scripts/smoke-main.mjs",
+    "verify:render": "vitest run tests/export-pipeline.test.ts",
+    "verify": "npm run typecheck && npm test && npm run build && npm run smoke"
   },
   "dependencies": {
     "ffmpeg-static": "^5.2.0",

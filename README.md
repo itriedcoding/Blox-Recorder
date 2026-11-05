@@ -213,6 +213,8 @@ Useful scripts:
 | `npm run typecheck` | Strict TypeScript for main, preload and renderer |
 | `npm test` | Vitest: filter graph, timeline maths, effect audio, end-to-end render |
 | `npm run verify:render` | Only the real FFmpeg render test (writes to `tests/.artifacts`) |
+| `npm run smoke` | Boots the built main process against a mocked Electron API and asserts IPC wiring |
+| `npm run verify` | typecheck + tests + build + boot smoke, in one command |
 | `npm run build` | Typecheck + production bundles into `out/` |
 | `npm run package:win` | Build the NSIS `.exe` into `release/` |
 | `npm run package:dir` | Unpacked build for debugging packaging |
@@ -269,6 +271,15 @@ npm test
 - `tests/export-pipeline.test.ts` — **real** FFmpeg: generates source media,
   builds the project graph, renders a multi-track export with effects audio and a
   PNG overlay sequence, then verifies codecs, dimensions and duration with FFprobe.
+
+`npm run smoke` (after a build) loads `out/main/index.js` with a mocked
+`electron` module and runs the genuine bootstrap: settings load and persistence,
+output-directory creation, `media://` protocol registration, the display-media
+handler, window creation with the sandboxed web preferences, and 63 IPC
+handlers, then invokes `app:info`, `system:monitors`, `recorder:status`,
+`system:stats`, `system:encoders` and `projects:list`. It catches the startup
+crashes that a Windows user would otherwise hit first. It cannot verify pixels,
+Windows capture or the installer.
 
 GitHub Actions:
 

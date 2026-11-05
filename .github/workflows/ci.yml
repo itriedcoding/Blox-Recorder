@@ -25,3 +25,5 @@ jobs:
         run: npx vitest run tests/export-pipeline.test.ts
       - name: Production build
         run: npx electron-vite build
+      - name: Main-process boot smoke test
+        run: npm run smoke

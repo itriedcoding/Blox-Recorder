@@ -37,6 +37,9 @@ jobs:
           npm test
           npx electron-vite build
 
+      - name: Main-process boot smoke test
+        run: npm run smoke
+
       - name: Generate application icons
         run: npm run icons
 
