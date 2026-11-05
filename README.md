@@ -85,7 +85,7 @@ language:
 | **Record** | Source picker (screens/windows with live thumbnails), region selector, resolution/FPS/quality, mic + system audio meters, webcam layout, effect toggles, presets, live timer and performance readout. |
 | **Library** | Every recording and project on disk, with thumbnails, durations, sizes and one-click open / reveal / delete. |
 | **Editor** | Preview + multi-track timeline + inspector. |
-| **Screenshots** | Captured stills with a real annotation canvas (pen, arrow, rectangle, blur, crop, text). |
+| **Screenshots** | Captured stills with a real annotation canvas (freehand pen, arrow, rectangle, text, with colour and stroke width, saved to PNG or clipboard). |
 | **Exports** | The export queue with live stage, percentage, speed and ETA. |
 
 > **Screenshots in this README are intentionally absent rather than faked.** The
@@ -104,7 +104,7 @@ language:
   compositor and reflected in the file.
 - **Resolution** — Native, 720p, 1080p, 1440p or 4K, derived from the source
   aspect ratio (odd sizes corrected to even dimensions for H.264).
-- **Frame rate** — 24/30/50/60/120 fps.
+- **Frame rate** — 24/30/50/60/120/144 fps.
 - **Quality** — low/medium/high/ultra bitrate tiers for the intermediate encode.
 - **Audio** — pick any microphone, set its gain, toggle system audio and its
   gain. Both are monitored with live level meters before you record.
@@ -161,8 +161,9 @@ recording, and reports an explicit reason when the native hook is unavailable.
 
 - **Library** — recordings and projects with thumbnails, sizes, durations,
   reveal-in-Explorer and delete.
-- **Screenshots** — capture the selected source, annotate with pen/arrow/rect/
-  blur/text/crop, save as PNG or copy to the clipboard.
+- **Screenshots** — capture the selected source, annotate with freehand pen,
+  arrow, rectangle or text (colour and stroke width, undo), save as PNG or copy
+  to the clipboard.
 - **Presets** — full recording configurations (resolution, fps, quality, audio,
   webcam, effects, region, countdown) with save/delete.
 - **Settings** — theme (dark/light), output folders, FFmpeg/FFprobe overrides,
@@ -185,9 +186,11 @@ Defaults (all editable in Settings):
 | Save project | `Ctrl+S` |
 | Export | `Ctrl+Shift+E` |
 | Play / pause preview | `Space` |
-| Step frame | `←` / `→` |
-| Split at playhead | `S` |
-| Undo / redo | `Ctrl+Z` / `Ctrl+Shift+Z` |
+| Step one frame | `←` / `→` |
+| Jump to start / end | `Home` / `End` |
+| Delete selected clip | `Delete` / `Backspace` |
+| Undo / redo | `Ctrl+Z` / `Ctrl+Shift+Z` (or `Ctrl+Y`) |
+| Save project in editor | `Ctrl+S` |
 
 ## Build from source
 
