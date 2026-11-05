@@ -398,7 +398,13 @@ try {
 if (bootstrapError) check('bootstrap completed', false, bootstrapError)
 if (didFinishBootstrap) check('bootstrap completed', true)
 
-fs.rmSync(userData, { recursive: true, force: true })
+try {
+  // Best effort: Windows can hold a handle on a freshly written file for a few
+  // milliseconds, and a temp-directory lock must never fail the smoke test.
+  fs.rmSync(userData, { recursive: true, force: true, maxRetries: 5, retryDelay: 150 })
+} catch {
+  console.log(`  note temporary workspace left behind at ${userData}`)
+}
 
 if (failures.length) {
   console.error(`\nsmoke: ${failures.length} check(s) failed:\n${failures.map((entry) => ` - ${entry}`).join('\n')}`)
