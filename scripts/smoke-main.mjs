@@ -30,6 +30,8 @@ if (!fs.existsSync(mainBundle)) {
   process.exit(1)
 }
 
+console.log(`smoke: node ${process.version} on ${process.platform}/${process.arch}`)
+
 const userData = fs.mkdtempSync(path.join(os.tmpdir(), 'skyrec-smoke-'))
 const videos = path.join(userData, 'Videos')
 fs.mkdirSync(videos, { recursive: true })
@@ -227,6 +229,12 @@ const electron = {
 const originalLoad = Module._load
 Module._load = function patchedLoad(request, parent, isMain) {
   if (request === 'electron') return electron
+  if (request === 'uiohook-napi') {
+    // The native global-input hook talks to the real desktop session, and on a
+    // headless runner loading it can take the process down during teardown.
+    // Pretend it is missing so the documented degradation path is what runs.
+    throw new Error('global input hook disabled for the smoke test')
+  }
   return originalLoad.call(this, request, parent, isMain)
 }
 
@@ -374,6 +382,17 @@ try {
   check('projects:list works on an empty library', Array.isArray(list) && list.length === 0)
 } catch (error) {
   check('projects:list works on an empty library', false, error.message)
+}
+
+try {
+  const state = await handlers.get('input:state')({})
+  check(
+    'input capture degrades with an explicit reason when the native hook is missing',
+    state?.available === false && typeof state?.reason === 'string' && state.reason.length > 0,
+    JSON.stringify(state)
+  )
+} catch (error) {
+  check('input capture degrades with an explicit reason when the native hook is missing', false, error.message)
 }
 
 if (bootstrapError) check('bootstrap completed', false, bootstrapError)

@@ -42,7 +42,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
           if [ "${{ steps.smoke.outcome }}" != "success" ]; then
             echo "Emitting failure annotations (readable without authentication):"
-            grep -E "FAIL|smoke:|Error|error" smoke.log 2>/dev/null | head -15 | while IFS= read -r line; do
+            tail -14 smoke.log 2>/dev/null | while IFS= read -r line; do
               echo "::error title=Boot smoke::${line}"
             done
           fi
