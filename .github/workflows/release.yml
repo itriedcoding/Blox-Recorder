@@ -54,13 +54,34 @@ jobs:
         if: steps.meta.outputs.exists == 'false'
         run: npm ci
 
-      - name: Typecheck, test, build and boot the packaged main process
+      - name: Typecheck, test and build
         if: steps.meta.outputs.exists == 'false'
         run: |
           npm run typecheck
           npm test
           npx electron-vite build
-          npm run smoke
+
+      - name: Main-process boot smoke test
+        id: smoke
+        if: steps.meta.outputs.exists == 'false'
+        shell: bash
+        continue-on-error: true
+        run: npm run smoke 2>&1 | tee smoke.log
+
+      - name: Publish smoke output to the job summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "### Boot smoke test: ${{ steps.smoke.outcome }}"
+            echo '```'
+            tail -80 smoke.log 2>/dev/null || echo "smoke.log missing"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fail the job when the smoke test failed
+        if: steps.smoke.outcome != 'success'
+        run: exit 1
 
       - name: Generate application icons
         if: steps.meta.outputs.exists == 'false'

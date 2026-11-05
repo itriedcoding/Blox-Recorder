@@ -38,7 +38,23 @@ jobs:
           npx electron-vite build
 
       - name: Main-process boot smoke test
-        run: npm run smoke
+        id: smoke
+        shell: bash
+        continue-on-error: true
+        run: npm run smoke 2>&1 | tee smoke.log
+      - name: Publish smoke output to the job summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "### Boot smoke test: ${{ steps.smoke.outcome }}"
+            echo '```'
+            tail -80 smoke.log 2>/dev/null || echo "smoke.log missing"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Fail the job when the smoke test failed
+        if: steps.smoke.outcome != 'success'
+        run: exit 1
 
       - name: Generate application icons
         run: npm run icons
