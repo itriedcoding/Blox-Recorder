@@ -13,6 +13,7 @@ export const IPC = {
   windowClose: 'window:close',
   windowState: 'window:state',
   windowStateChanged: 'window:state-changed',
+  rendererReady: 'app:renderer-ready',
 
   settingsGet: 'settings:get',
   settingsUpdate: 'settings:update',

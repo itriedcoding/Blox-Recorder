@@ -108,6 +108,40 @@ jobs:
           $installer | ForEach-Object { Write-Host "Built $($_.Name) ($([math]::Round($_.Length / 1MB, 1)) MB)" }
           if ($installer[0].Length -lt 10MB) { throw 'Installer is unexpectedly small - refusing to publish it' }
 
+      # Packaging succeeding does not prove the app starts. This launches the
+      # real packaged executable and waits for its window, renderer and IPC
+      # bridge before anything is published.
+      - name: Launch the packaged app on Windows
+        id: selftest
+        if: steps.meta.outputs.exists == 'false'
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $exe = Join-Path 'release\win-unpacked' 'SkyRec Studio.exe'
+          if (-not (Test-Path $exe)) { throw "Packaged executable missing at $exe" }
+          $out = Join-Path $env:RUNNER_TEMP 'selftest.out.log'
+          $err = Join-Path $env:RUNNER_TEMP 'selftest.err.log'
+          $proc = Start-Process -FilePath $exe -ArgumentList '--self-test' -PassThru -RedirectStandardOutput $out -RedirectStandardError $err -NoNewWindow
+          if (-not $proc.WaitForExit(180000)) {
+            try { $proc.Kill() } catch {}
+            throw 'The packaged application did not finish its self-test within 180 seconds'
+          }
+          Get-Content $out, $err -ErrorAction SilentlyContinue | Write-Host
+          if ($proc.ExitCode -ne 0) { throw "The packaged application exited with code $($proc.ExitCode)" }
+          if (-not (Select-String -Path $out -Pattern 'SELF-TEST OK' -Quiet)) { throw 'The packaged application never reported SELF-TEST OK' }
+
+      - name: Fail the job when the packaged app does not start
+        if: steps.selftest.outcome == 'failure'
+        shell: bash
+        run: |
+          for f in "$RUNNER_TEMP/selftest.out.log" "$RUNNER_TEMP/selftest.err.log"; do
+            [ -f "$f" ] || continue
+            echo "--- $f"
+            tail -30 "$f"
+            tail -30 "$f" | while IFS= read -r line; do echo "::error title=Packaged app self-test::${line}"; done
+          done
+          exit 1
+
       - name: Upload build artefact
         if: steps.meta.outputs.exists == 'false'
         uses: actions/upload-artifact@v4

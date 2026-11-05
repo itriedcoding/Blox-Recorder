@@ -35,6 +35,8 @@ console.log(`smoke: node ${process.version} on ${process.platform}/${process.arc
 const userData = fs.mkdtempSync(path.join(os.tmpdir(), 'skyrec-smoke-'))
 const videos = path.join(userData, 'Videos')
 fs.mkdirSync(videos, { recursive: true })
+// Keep the synchronous launch log inside the throwaway workspace.
+process.env.SKYREC_LAUNCH_LOG = path.join(userData, 'launch.log')
 
 const handlers = new Map()
 const windows = []
@@ -288,6 +290,8 @@ check('display-media request handler installed', Boolean(sessionHandlers.display
 check('system picker disabled so our staged source is used', sessionHandlers.displayMedia?.options?.useSystemPicker === false)
 check('permission handler installed', Boolean(sessionHandlers.permission))
 check('ipc handlers registered', handlers.size > 20, `handlers=${handlers.size}`)
+check('renderer readiness channel is wired', handlers.has('app:renderer-ready'))
+check('launch diagnostics log written', fs.existsSync(process.env.SKYREC_LAUNCH_LOG))
 
 const expectedChannels = [
   'app:info',

@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import type { AppInfo, AppSettings, Project, RecorderStatus, RecordingResult } from '@shared/types'
-import { projectDuration } from '@shared/defaults'
+import { defaultSettings, projectDuration } from '@shared/defaults'
 
 export type View = 'record' | 'library' | 'editor' | 'exports' | 'screenshots' | 'settings'
 
@@ -65,11 +65,26 @@ export const useStore = create<Store>((set, get) => ({
   appInfo: null,
   initialized: false,
   init: async () => {
-    const [settings, appInfo] = await Promise.all([window.api.settings.get(), window.api.app.info()])
+    const { pushToast } = get()
+    // Neither a broken settings file nor a failing FFmpeg probe may strand the
+    // window on the splash screen: every step degrades to a usable default and
+    // the failure is reported to the user.
+    const settings = await window.api.settings.get().catch((error: unknown) => {
+      pushToast('error', 'Settings could not be loaded', (error as Error).message)
+      return defaultSettings()
+    })
+    const appInfo = await window.api.app.info().catch((error: unknown) => {
+      pushToast('error', 'Startup diagnostics unavailable', (error as Error).message)
+      return null
+    })
     document.documentElement.dataset.theme = settings.theme
     set({ settings, appInfo, initialized: true })
-    const status = await window.api.recorder.status()
-    set({ recorder: status })
+    try {
+      const status = await window.api.recorder.status()
+      set({ recorder: status })
+    } catch {
+      /* the recorder reports its own errors once a capture is attempted */
+    }
   },
   updateSettings: async (patch) => {
     const settings = await window.api.settings.update(patch)

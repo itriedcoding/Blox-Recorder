@@ -63,6 +63,9 @@ const api = {
     pickDirectory: (): Promise<string | null> => ipcRenderer.invoke(IPC.appPickDirectory),
     pickFiles: (kind: 'media' | 'any' = 'media'): Promise<string[]> => ipcRenderer.invoke(IPC.appPickFiles, kind),
     logs: (): Promise<string> => ipcRenderer.invoke(IPC.appLogs),
+    rendererReady: (info: { mounted: boolean; bridge: boolean; href: string }): void => {
+      ipcRenderer.send(IPC.rendererReady, info)
+    },
     log: (level: 'info' | 'warn' | 'error', scope: string, message: string): Promise<void> =>
       ipcRenderer.invoke(IPC.appLog, { level, scope, message }),
     mediaUrl,

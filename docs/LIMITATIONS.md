@@ -84,3 +84,8 @@ absent rather than decorative.
     workflow builds it on `windows-latest` and fails if no `.exe` is produced, but
     this environment cannot execute a Windows binary, so first-launch behaviour on
     a real desktop must be confirmed on Windows.
+19. **The packaged self-test covers startup, not capture.** `--self-test` proves
+    that the released executable launches, shows its window, mounts the renderer
+    and exposes the preload bridge. Screen capture, the loopback audio device and
+    the native input hook still require an interactive desktop session and are not
+    exercised by it.

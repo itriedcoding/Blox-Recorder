@@ -1,6 +1,6 @@
 {
   "name": "skyrec",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "SkyRec Studio - professional Windows screen recorder with a built-in multi-track video editor",
   "main": "out/main/index.js",
   "author": {

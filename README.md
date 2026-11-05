@@ -306,6 +306,35 @@ Either way `release/SkyRec-Studio-Setup-<version>.exe` is built on
 `windows-latest`, and publishing is aborted if the installer was not produced or
 is implausibly small — no empty releases, no dead links.
 
+## When the app does not start
+
+Every launch writes a synchronous log before Electron is ready, so a launch that
+never reaches the window still leaves evidence:
+
+- Windows: `%APPDATA%\skyrec\logs\launch.log`
+- Linux/macOS: `$XDG_STATE_HOME/skyrec/logs/launch.log` (defaults to
+  `~/.local/state/skyrec/logs/launch.log`)
+
+The log records each bootstrap step, any uncaught exception, renderer console
+errors and failed `did-fail-load` navigation with its reason.
+
+To check a build end-to-end, run the installed executable with `--self-test`:
+
+```powershell
+& "$env:LOCALAPPDATA\Programs\SkyRec Studio\SkyRec Studio.exe" --self-test
+```
+
+It boots the real application, waits for the window and the renderer, verifies
+the preload bridge with an executed JavaScript round-trip, prints one line
+(`SELF-TEST OK {...}` or `SELF-TEST FAILED {...}` with the full diagnostics) and
+exits non-zero on failure. The release workflow runs exactly this command against
+the packaged `.exe` on `windows-latest` before publishing, so a build that cannot
+open its own window is never released.
+
+The window is shown on `ready-to-show`, on `did-finish-load` **and** after an
+8 second fallback, and a failed navigation renders an explanatory page instead of
+leaving an invisible process behind.
+
 ## Known limitations
 
 Read [docs/LIMITATIONS.md](docs/LIMITATIONS.md) — it lists every feature that is
