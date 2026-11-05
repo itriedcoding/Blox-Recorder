@@ -1,0 +1,58 @@
+appId: studio.skyrec.app
+productName: SkyRec Studio
+copyright: Copyright © 2026 SkyRec Studio
+
+directories:
+  output: release
+  buildResources: build
+
+files:
+  - out/**/*
+  - package.json
+  - '!**/*.map'
+  - '!**/node_modules/*/{CHANGELOG.md,README.md,readme.md,LICENSE,license}'
+  - '!**/node_modules/.bin'
+
+asarUnpack:
+  - node_modules/ffmpeg-static/**
+  - node_modules/ffprobe-static/**
+  - node_modules/uiohook-napi/**
+
+# uiohook-napi ships N-API prebuilds; rebuilding from source would require a
+# full MSVC toolchain on the build machine.
+npmRebuild: false
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  icon: build/icon.ico
+  artifactName: SkyRec-Studio-Setup-${version}.${ext}
+  legalTrademarks: SkyRec Studio
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowElevation: true
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: SkyRec Studio
+  deleteAppDataOnUninstall: false
+  uninstallDisplayName: SkyRec Studio ${version}
+
+linux:
+  target:
+    - AppImage
+  category: AudioVideo
+  icon: build/icon.png
+
+mac:
+  target:
+    - dmg
+  category: public.app-category.video
+
+publish:
+  provider: github
+  releaseType: release

@@ -1,0 +1,45 @@
+MIT License
+
+Copyright (c) 2026 SkyRec Studio
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---------------------------------------------------------------------------
+Third-party components bundled with the installer
+---------------------------------------------------------------------------
+
+FFmpeg (https://ffmpeg.org)
+  The installer ships the static FFmpeg and FFprobe binaries provided by the
+  `ffmpeg-static` and `ffprobe-static` npm packages. Those builds are licensed
+  under the GNU General Public License v3 (and FFmpeg's LGPL where applicable).
+  Source code and build scripts: https://ffmpeg.org/download.html
+  Because the distributed binaries are GPLv3, redistribution of this installer
+  is subject to the GPLv3 for those components. The application source code in
+  this repository remains MIT licensed. FFmpeg is invoked as a separate
+  executable over its command-line interface.
+
+uiohook-napi (https://github.com/SnosMe/uiohook-napi)
+  MIT licensed. Optional native module used for global mouse/keyboard capture;
+  the app runs without it (effects are then limited to in-app events).
+
+Electron (https://www.electronjs.org) - MIT licensed.
+React (https://react.dev) - MIT licensed.
+Zustand (https://github.com/pmndrs/zustand) - MIT licensed.
+Tailwind CSS (https://tailwindcss.com) - MIT licensed.
+electron-vite, Vite, TypeScript, electron-builder - MIT licensed.

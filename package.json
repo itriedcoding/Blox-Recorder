@@ -1,0 +1,57 @@
+{
+  "name": "skyrec",
+  "version": "1.0.0",
+  "description": "SkyRec Studio - professional Windows screen recorder with a built-in multi-track video editor",
+  "main": "out/main/index.js",
+  "author": {
+    "name": "SkyRec Studio",
+    "email": "support@skyrec.studio"
+  },
+  "license": "MIT",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/itriedcoding/Blox-Recorder.git"
+  },
+  "homepage": "https://github.com/itriedcoding/Blox-Recorder",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "start": "electron-vite preview",
+    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
+    "build": "npm run typecheck && electron-vite build",
+    "package:win": "npm run build && electron-builder --win nsis --config electron-builder.yml",
+    "package:dir": "npm run build && electron-builder --dir --config electron-builder.yml",
+    "icons": "node scripts/generate-icons.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "verify:render": "vitest run tests/export-pipeline.test.ts"
+  },
+  "dependencies": {
+    "ffmpeg-static": "^5.2.0",
+    "ffprobe-static": "^3.1.0"
+  },
+  "optionalDependencies": {
+    "uiohook-napi": "^1.5.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/react": "^18.3.17",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "electron": "^33.3.1",
+    "electron-builder": "^25.1.8",
+    "electron-vite": "^2.3.0",
+    "postcss": "^8.4.49",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.2",
+    "vite": "^5.4.11",
+    "vitest": "^2.1.8",
+    "zustand": "^4.5.5"
+  },
+  "engines": {
+    "node": ">=20.11.0"
+  }
+}

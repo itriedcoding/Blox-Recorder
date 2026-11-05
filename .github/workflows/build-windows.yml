@@ -1,0 +1,91 @@
+name: Build Windows installer
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build (e.g. 1.0.0)'
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck, unit test and build renderer/main
+        run: |
+          npm run typecheck
+          npm test
+          npx electron-vite build
+
+      - name: Generate application icons
+        run: npm run icons
+
+      - name: Package NSIS installer
+        run: npx electron-builder --win nsis --config electron-builder.yml --publish never
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+
+      - name: Verify installer exists
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem -Path release -Filter 'SkyRec-Studio-Setup-*.exe' -ErrorAction SilentlyContinue
+          if (-not $installer) { throw 'Installer was not produced' }
+          $installer | ForEach-Object { Write-Host "Built $($_.Name) ($([math]::Round($_.Length / 1MB, 1)) MB)" }
+
+      - name: Upload installer artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SkyRec-Studio-Windows
+          path: |
+            release/SkyRec-Studio-Setup-*.exe
+            release/*.blockmap
+          if-no-files-found: error
+
+      - name: Create GitHub release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: SkyRec Studio ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            release/SkyRec-Studio-Setup-*.exe
+            release/*.blockmap
+          body: |
+            ## SkyRec Studio ${{ github.ref_name }}
+
+            Windows screen recorder with a built-in multi-track editor.
+
+            ### Install
+            1. Download `SkyRec-Studio-Setup-*.exe` below.
+            2. Run the installer (per-user, no admin rights required).
+            3. Launch **SkyRec Studio** from the Start menu or desktop shortcut.
+
+            ### What's inside
+            - Hardware-accelerated screen/window/region capture with mic + system audio
+            - Cursor, click and keyboard effects recorded in sync and editable later
+            - Multi-track editor: trim, split, crop, speed, zoom, transitions, text, music
+            - MP4/MKV/WebM export through FFmpeg with real encoder progress
+
+            See the [README](https://github.com/${{ github.repository }}#readme) for the full feature list and known limitations.
