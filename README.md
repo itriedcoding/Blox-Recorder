@@ -291,16 +291,20 @@ GitHub Actions:
 
 ## Releases
 
-The release flow is a tag push:
+Releases are automated:
 
-```bash
-git tag v1.0.0
-git push origin v1.0.0
-```
+- **Push to `main`** — `.github/workflows/release.yml` reads the version from
+  `package.json`; if no matching `v<version>` tag exists it typechecks, tests,
+  builds, runs the boot smoke test, packages the NSIS installer, verifies the
+  `.exe` is real, and publishes it to a GitHub Release. If the tag already
+  exists, the run does nothing (so ordinary pushes stay cheap).
+- **Tag push** — `git tag v1.0.0 && git push origin v1.0.0` runs
+  `.github/workflows/build-windows.yml`, which builds and attaches the installer
+  to the release for that tag.
 
-The Windows workflow builds `release/SkyRec-Studio-Setup-1.0.0.exe` and publishes
-it to a GitHub Release with generated notes. The release is only created when the
-installer was produced and verified by the workflow — no empty assets.
+Either way `release/SkyRec-Studio-Setup-<version>.exe` is built on
+`windows-latest`, and publishing is aborted if the installer was not produced or
+is implausibly small — no empty releases, no dead links.
 
 ## Known limitations
 
